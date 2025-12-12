@@ -57,30 +57,36 @@ export class Canvas {
         this.ctx.fillStyle = c.CANVAS_BACKGROUND_DETONATED_COLOR;
         break;
 
-      // Color para
+      // Color para el efecto de ola al perder la partida
       case c.CELL_STADE.defeatOpenWave:
         this.ctx.fillStyle = c.CANVAS_BACKGROUND_DEFEAT_OPEN_WAVE_COLOR;
         break;
 
+      // Color para el efecto de ola al abrirse celdas vacias
       case c.CELL_STADE.openWave:
         this.ctx.fillStyle = c.CANVAS_BACKGROUND_OPEN_WAVE_COLOR;
         break;
 
+      // Color para celdas abiertas
       case c.CELL_STADE.open:
         this.ctx.fillStyle = c.CANVAS_BACKGROUND_OPEN_COLOR;
         break;
 
+      // Color para errores
       case c.CELL_STADE.error:
         this.ctx.fillStyle = c.CANVAS_BACKGROUND_OPEN_COLOR;
         break;
 
+      // Si es otro estado, la funcion no pinta (la celda esta cerrada)
       default:
         return; // closed, flag, unknown → handled in drawClosedCell
     }
 
+    // Pinta el fondo de la celda
     this.ctx.fillRect(x, y, 1, 1);
   }
 
+  // Dibuja el valor de las celdas del tablero
   drawValuesLayer(board, showBoard) {
     for (let y = 0; y < this.heightGrid; y++) {
       for (let x = 0; x < this.widthGrid; x++) {
@@ -89,12 +95,11 @@ export class Canvas {
     }
   }
 
+  // Dibuja el valor de una celda especifica
   drawCellValue({ x, y, value, state, pressed = false }) {
     const c = CONSTS;
 
-    // -----------------------
-    // closed states
-    // -----------------------
+    // Llama a la funcion correspondiente para las celdas cerradas
     if (state === c.CELL_STADE.closed) {
       this.drawClosedCell(x, y, pressed);
       return;
@@ -110,9 +115,7 @@ export class Canvas {
       return;
     }
 
-    // -----------------------
-    // opened states
-    // -----------------------
+    // Llama a los metodos para dibujar una mina o un error si es necesario
     if (state === c.CELL_STADE.open || state === c.CELL_STADE.detonatedMine || state === c.CELL_STADE.error) {
       if (value === c.CELL_VALUE.mine || state === c.CELL_STADE.error) {
         this.drawMine(x, y);
@@ -123,6 +126,7 @@ export class Canvas {
         return;
       }
 
+      // Si contiene un numero, lo dibuja con el color correspondiente
       if (value !== c.CELL_VALUE.void) {
         this.ctx.fillStyle = c.NUMBERS_COLORS[value];
         this.ctx.fillText(value, x + 0.5, y + 0.5);
@@ -130,19 +134,19 @@ export class Canvas {
     }
   }
 
-  // ============================================================
-  // DRAW ELEMENTS
-  // ============================================================
+  // Metodo que dibuja la bandera
   drawFlag(x, y) {
     this.ctx.fillStyle = 'red';
     this.ctx.fillText(CONSTS.CELL_VALUE.flag, x + 0.5, y + 0.5);
   }
 
+  // Metodo que dibuja el interrogante
   drawUnknown(x, y) {
     this.ctx.fillStyle = 'black';
     this.ctx.fillText(CONSTS.CELL_VALUE.unknown, x + 0.5, y + 0.5);
   }
 
+  // Metodo que dibuja la mina
   drawMine(x, y) {
     const p = 0.3;
     this.ctx.fillStyle = 'white';
@@ -151,6 +155,7 @@ export class Canvas {
     this.ctx.fillText(CONSTS.CELL_VALUE.mine, x + 0.5, y + 0.5);
   }
 
+  // Metodo que dibuja la cruz del error
   drawError(x, y) {
     this.ctx.save();
     this.ctx.strokeStyle = 'red';
@@ -172,9 +177,7 @@ export class Canvas {
     this.ctx.restore();
   }
 
-  // ============================================================
-  // CLOSED CELL
-  // ============================================================
+  // Metodo que dibuja la celda cerrada
   drawClosedCell(cellX, cellY, pressed = false) {
     const c = CONSTS;
 
@@ -190,6 +193,7 @@ export class Canvas {
     this.drawClosedBorders(cellX, cellY, topColor, bottomColor);
   }
 
+  // Metodo que dibuja los bordes de las celdas cerradas
   drawClosedBorders(x, y, topColor, bottomColor) {
     const b = 0.15;
 
@@ -208,9 +212,7 @@ export class Canvas {
     this.ctx.fillRect(x + 1 - b, y, b, 1);
   }
 
-  // ============================================================
-  // GRID
-  // ============================================================
+  // Metodo que dibuja la regilla del tablero
   drawGrid() {
     const c = CONSTS;
 
