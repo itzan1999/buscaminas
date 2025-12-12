@@ -1,5 +1,6 @@
 import * as CONSTS from './consts.js';
 
+// Clase que controla el canvas
 export class Canvas {
   constructor(canvas, width, height) {
     this.canvas = canvas;
@@ -21,24 +22,22 @@ export class Canvas {
     this.configureText();
   }
 
+  // Establece el tamaño, fuente y posicion del texto para el canvas
   configureText() {
     this.ctx.font = `0.65px buscaminas`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
   }
 
-  // ============================================================
-  // MAIN DRAW
-  // ============================================================
+  // Metodo draw principal
+  // Llama al resto de metodos que se encargan de dibujar el canvas
   draw(board, showBoard) {
     this.drawBackgroundLayer(showBoard);
     this.drawValuesLayer(board, showBoard);
     this.drawGrid();
   }
 
-  // ============================================================
-  // BACKGROUND LAYER
-  // ============================================================
+  // Metodo que dibuja el fondo en todoas las celdas
   drawBackgroundLayer(showBoard) {
     for (let y = 0; y < this.heightGrid; y++) {
       for (let x = 0; x < this.widthGrid; x++) {
@@ -47,14 +46,18 @@ export class Canvas {
     }
   }
 
+  // Metodo que dibuja el fondo de una celda segun su estado
   drawCellBackground(x, y, state) {
     const c = CONSTS;
 
+    // Switch que establece el color con que se pintara el fondo
     switch (state) {
+      // Color para la mina detonada
       case c.CELL_STADE.detonatedMine:
         this.ctx.fillStyle = c.CANVAS_BACKGROUND_DETONATED_COLOR;
         break;
 
+      // Color para
       case c.CELL_STADE.defeatOpenWave:
         this.ctx.fillStyle = c.CANVAS_BACKGROUND_DEFEAT_OPEN_WAVE_COLOR;
         break;
