@@ -2,14 +2,16 @@ import { Canvas } from './canvas.js';
 import { BOARD_HEIGHT, BOARD_WIDTH, CELL_SIZE, CELL_STADE, CELL_VALUE, NUM_MINES } from './consts.js';
 
 const canvas = document.getElementById('main-board');
-const cotador = document.getElementById('contador');
+const contador = document.getElementById('contador');
 const endMsg = document.getElementById('end-msg');
 
+// Inicializar tableros
 const BOARD = Array.from({ length: BOARD_HEIGHT }, () => Array(BOARD_WIDTH).fill(CELL_VALUE.void));
 const SHOW_BOARD = Array.from({ length: BOARD_HEIGHT }, () => Array(BOARD_WIDTH).fill(CELL_STADE.closed));
 
 const MAIN_CANVAS = new Canvas(canvas, BOARD_WIDTH, BOARD_HEIGHT);
 
+// Coordenadas relativas a las 8 celdas que rodean a cualquiera
 const dirs = [
   [-1, -1],
   [-1, 0],
@@ -26,18 +28,25 @@ let mouseDown = false;
 let start = false;
 let lose = false;
 let minasRestantes = NUM_MINES;
+
+// Inicializar contador al numero de minas
 contador.textContent = minasRestantes;
 
+// Dibujar el tablero cuando se carge la fuente buscaminas
 document.fonts.load('10px buscaminas').then(() => {
   MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
 });
 
+// Generar los valores del tablero
 function generarTablero(cellX, cellY) {
   start = true;
   colocarMinas(BOARD, NUM_MINES, generarZonaSegura(cellX, cellY));
   colocarNumeros(BOARD);
 }
 
+// Genera la zona segura alrededor del primer click
+// Return: bidimensional con las 9 posiciones de las celdas seguras
+// [[x, y], [x, y], [x, y]...]
 function generarZonaSegura(cellX, cellY) {
   const zonaSegura = [[cellY, cellX]];
 
@@ -56,6 +65,7 @@ function generarZonaSegura(cellX, cellY) {
   return zonaSegura;
 }
 
+// Coloca minas aleatoriamente en el tablero ignorando la zona segura
 function colocarMinas(board, minas, zonaSegura) {
   const rows = board.length;
   const cols = board[0].length;
@@ -84,6 +94,7 @@ function colocarMinas(board, minas, zonaSegura) {
   }
 }
 
+// Recorre el tablero, y por cada mina, suma 1 al valor de todas las celdas contiguas que no sean minas
 function colocarNumeros(board) {
   for (let row = 0; row < board.length; row++) {
     for (let col = 0; col < board[0].length; col++) {
@@ -149,6 +160,7 @@ function colocarNumeros(board) {
 //   }
 // }
 
+// Revela las celdas vacias contiguas con un efecto de ola
 async function revelarVaciasOla(startX, startY) {
   const pila = [[startX, startY]];
   const visited = Array.from({ length: BOARD.length }, () => Array(BOARD[0].length).fill(false));
@@ -195,10 +207,13 @@ async function revelarVaciasOla(startX, startY) {
   MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
 }
 
+// Pausa la ejecucion en el tiempo especificado (en milisiegundos)
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Comprueba que todo el tablero este abierto o con bandera, y comprueba que en cada mina haya una bandera
+// Genera la victoria en caso afirmativo
 function checkWin() {
   if (SHOW_BOARD.every((row) => row.every((val) => val === CELL_STADE.open || val === CELL_STADE.flag))) {
     const minesPos = [];
@@ -223,12 +238,14 @@ function checkWin() {
   }
 }
 
+// Muestra el mensaje de derrota y llama a la funcion de revelar el tablero
 async function gameOver(cellX, cellY) {
   lose = true;
   endMsg.textContent = 'HAS PERDIDO';
   await showBoard(cellX, cellY);
 }
 
+// Revela todo el tablero al pulsar en una mina, con un efecto de ola, y mostrando los errores.
 async function showBoard(startX, startY) {
   const pila = [[startX, startY]];
   const visited = Array.from({ length: BOARD.length }, () => Array(BOARD[0].length).fill(false));
@@ -293,6 +310,9 @@ async function showBoard(startX, startY) {
   MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
 }
 
+// Al pulsar en un numero abierto, si tiene el numero de banderas correctas alrededor,
+// abre todas las celdas contiguas que no tengan bandera
+// puede abrir minas en caso de haber algun error
 async function openNextCells(cellX, cellY) {
   if (!countNextFlags(cellX, cellY)) return;
 
@@ -324,6 +344,7 @@ async function openNextCells(cellX, cellY) {
   // checkWin();
 }
 
+// Cuenta las banderas alrededor de una celda y devuelve true o false segun si el numero de banderas corresponde al numero de minas
 function countNextFlags(cellX, cellY) {
   let numFlags = 0;
   dirs.forEach(([drow, dcol]) => {
@@ -338,6 +359,7 @@ function countNextFlags(cellX, cellY) {
   return numFlags === BOARD[cellY][cellX];
 }
 
+// Evento al pulsar una celda
 canvas.addEventListener('pointerdown', (event) => {
   if (lose) return;
   event.preventDefault();
@@ -349,11 +371,16 @@ canvas.addEventListener('pointerdown', (event) => {
 
   const estado = SHOW_BOARD[cellY][cellX];
 
+  // Si la celda esta abierta, es una bandera, o una interrogacion no hace nada
   if (estado === CELL_STADE.flag || estado === CELL_STADE.unknown || estado === CELL_STADE.open) return;
 
-  MAIN_CANVAS.drawCellValue(cellX, cellY, BOARD[cellY][cellX], SHOW_BOARD[cellY][cellX], true);
+  //
+  MAIN_CANVAS.drawCellValue({ x: cellX, y: cellY, value: BOARD[cellY][cellX], state: SHOW_BOARD[cellY][cellX], pressed: true });
 });
 
+// Evendo al mover el raton mientras mantienes el click
+// Evita que se abra una celda distinta al mover el raton despues de pulsar el click
+// Y anula la pulsacion si se saca el raton del tablero despues de mantener el click
 canvas.addEventListener('pointermove', (e) => {
   if (lose) return;
   if (!mouseDown) return;
@@ -367,6 +394,8 @@ canvas.addEventListener('pointermove', (e) => {
   }
 });
 
+// Evento al soltar el click
+// Abre o marca la celda correspondiente segun el boton pulsado
 window.addEventListener('pointerup', (e) => {
   if (lose) return;
   if (!mouseDown) return;
@@ -385,8 +414,12 @@ window.addEventListener('pointerup', (e) => {
 
   MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
 
+  // Si se ha sacado el raton del tablero antes de soltar el click no hace nada
   if (!inside) return;
 
+  // Si se ha pulsado el boton izquierdo,
+  // abre la celda pulsada,
+  // además, si es la primera pulsacion, genera el tablero
   if (e.button === 0) {
     if (!start) generarTablero(x, y);
     if (SHOW_BOARD[y][x] === CELL_STADE.open) {
@@ -394,19 +427,24 @@ window.addEventListener('pointerup', (e) => {
     } else {
       if (SHOW_BOARD[y][x] !== CELL_STADE.flag) showCell(x, y);
     }
+    // Si se ha pulsado el boton derecho, marca la celda con el simbolo que correponda
   } else if (e.button === 2) {
     markCell(x, y);
   }
 });
 
+// Evento que evita que se muestre el menu contextual del click derecho en el tablero
 canvas.addEventListener('contextmenu', (e) => {
   e.preventDefault();
 });
 
+// Muestra la celda especificada
 function showCell(cellX, cellY) {
+  // Si la celda esta vacia, genera el efecto de ola
   if (BOARD[cellY][cellX] === CELL_VALUE.void && SHOW_BOARD[cellY][cellX] === CELL_STADE.closed) {
     revelarVaciasOla(cellX, cellY);
   } else {
+    // Si la celda tiene una mina, llama a la funcion de derrota
     if (BOARD[cellY][cellX] === CELL_VALUE.mine) {
       gameOver(cellX, cellY);
     }
@@ -415,6 +453,7 @@ function showCell(cellX, cellY) {
 
   MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
 
+  // Si la celda no es una mina, comprueba la victoria
   if (BOARD[cellY][cellX] !== CELL_VALUE.mine) {
     checkWin();
   }
@@ -428,26 +467,30 @@ function showCell(cellX, cellY) {
 
 // Marca con la celda con bandera o interrogación
 function markCell(cellX, cellY) {
-  if (SHOW_BOARD[cellY][cellX] !== CELL_STADE.open) {
-    if (SHOW_BOARD[cellY][cellX] === CELL_STADE.flag) {
-      minasRestantes++;
-      contador.textContent = minasRestantes;
+  // Si la celda ya esta abierta, no hace nada
+  if (SHOW_BOARD[cellY][cellX] === CELL_STADE.open) return;
 
-      SHOW_BOARD[cellY][cellX] = CELL_STADE.unknown;
-    } else if (SHOW_BOARD[cellY][cellX] === CELL_STADE.unknown) {
-      SHOW_BOARD[cellY][cellX] = CELL_STADE.closed;
-    } else {
-      SHOW_BOARD[cellY][cellX] = CELL_STADE.flag;
-      minasRestantes--;
-      contador.textContent = minasRestantes;
+  // Si la celda tiene una bandera, pone una interrogación y suma uno a las minas restantes
+  if (SHOW_BOARD[cellY][cellX] === CELL_STADE.flag) {
+    minasRestantes++;
+    contador.textContent = minasRestantes;
 
-      checkWin();
-    }
-    MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
+    SHOW_BOARD[cellY][cellX] = CELL_STADE.unknown;
+    // Si la celda tiene una interrogacion, quita la interrogación
+  } else if (SHOW_BOARD[cellY][cellX] === CELL_STADE.unknown) {
+    SHOW_BOARD[cellY][cellX] = CELL_STADE.closed;
+    // Si la celda no tiene nada, pone una bandera y resta 1 a las minas restantes y comprueba la victoria si las minas restantes son 0
+  } else {
+    SHOW_BOARD[cellY][cellX] = CELL_STADE.flag;
+    minasRestantes--;
+    contador.textContent = minasRestantes;
+
+    if (!minasRestantes) checkWin();
   }
+  MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
 }
 
-// Obtiene la celda del canvas pulsada
+// Obtiene las coordenadas de la celda del canvas pulsada
 function getCell(event) {
   const rect = canvas.getBoundingClientRect();
 
