@@ -128,7 +128,7 @@ export class Canvas {
 
       // Si contiene un numero, lo dibuja con el color correspondiente
       if (value !== c.CELL_VALUE.void) {
-        this.ctx.fillStyle = c.NUMBERS_COLORS[value];
+        this.ctx.fillStyle = c.VALUES_COLORS[value];
         this.ctx.fillText(value, x + 0.5, y + 0.5);
       }
     }
@@ -136,29 +136,29 @@ export class Canvas {
 
   // Metodo que dibuja la bandera
   drawFlag(x, y) {
-    this.ctx.fillStyle = 'red';
+    this.ctx.fillStyle = CONSTS.VALUES_COLORS.flag;
     this.ctx.fillText(CONSTS.CELL_VALUE.flag, x + 0.5, y + 0.5);
   }
 
   // Metodo que dibuja el interrogante
   drawUnknown(x, y) {
-    this.ctx.fillStyle = 'black';
+    this.ctx.fillStyle = CONSTS.VALUES_COLORS.unknown;
     this.ctx.fillText(CONSTS.CELL_VALUE.unknown, x + 0.5, y + 0.5);
   }
 
   // Metodo que dibuja la mina
   drawMine(x, y) {
     const p = 0.3;
-    this.ctx.fillStyle = 'white';
+    this.ctx.fillStyle = CONSTS.VALUES_COLORS.mineBackground;
     this.ctx.fillRect(x + p, y + p, 1 - 2 * p, 1 - 2 * p);
-    this.ctx.fillStyle = 'black';
+    this.ctx.fillStyle = CONSTS.VALUES_COLORS.mine;
     this.ctx.fillText(CONSTS.CELL_VALUE.mine, x + 0.5, y + 0.5);
   }
 
   // Metodo que dibuja la cruz del error
   drawError(x, y) {
     this.ctx.save();
-    this.ctx.strokeStyle = 'red';
+    this.ctx.strokeStyle = CONSTS.VALUES_COLORS.error;
     this.ctx.lineWidth = 0.1;
 
     const pad = 0.1;

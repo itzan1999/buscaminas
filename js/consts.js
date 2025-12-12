@@ -27,7 +27,7 @@ export const PRESSED_CELL_BORDER_COLOR_2 = '#ffffff';
 export const GRID_LINE_WIDTH = 0.05;
 
 // Numbers Colors
-export const NUMBERS_COLORS = {
+export const VALUES_COLORS = {
   1: '#0000ff',
   2: '#008200',
   3: '#fe0000',
@@ -35,7 +35,12 @@ export const NUMBERS_COLORS = {
   5: '#840000',
   6: '#008284',
   7: '#840084',
-  8: '#757575'
+  8: '#757575',
+  flag: '#f00',
+  error: '#f00',
+  unknown: '#000',
+  mine: '#000',
+  mineBackground: '#fff'
 };
 
 export const CELL_STADE = {
