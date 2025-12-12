@@ -81,12 +81,12 @@ export class Canvas {
   drawValuesLayer(board, showBoard) {
     for (let y = 0; y < this.heightGrid; y++) {
       for (let x = 0; x < this.widthGrid; x++) {
-        this.drawCellValue(x, y, board[y][x], showBoard[y][x]);
+        this.drawCellValue({ x, y, value: board[y][x], state: showBoard[y][x] });
       }
     }
   }
 
-  drawCellValue(x, y, value, state, pressed = false) {
+  drawCellValue({ x, y, value, state, pressed = false }) {
     const c = CONSTS;
 
     // -----------------------
