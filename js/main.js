@@ -37,17 +37,18 @@ let lose = false;
 let minasRestantes = 0;
 
 // Inicializar contador al numero de minas
-contador.textContent = minasRestantes;
 
 // Establece el tamaño del tablero
 function formarTablero() {
   start = false;
+  endMsg.textContent = '';
   BOARD = Array.from({ length: BOARD_PROPERTIES.BOARD_HEIGHT }, () => Array(BOARD_PROPERTIES.BOARD_WIDTH).fill(CELL_VALUE.void));
   SHOW_BOARD = Array.from({ length: BOARD_PROPERTIES.BOARD_HEIGHT }, () => Array(BOARD_PROPERTIES.BOARD_WIDTH).fill(CELL_STADE.closed));
 
   MAIN_CANVAS = new Canvas(canvas, BOARD_PROPERTIES.BOARD_WIDTH, BOARD_PROPERTIES.BOARD_HEIGHT);
 
   minasRestantes = BOARD_PROPERTIES.NUM_MINES;
+  contador.textContent = minasRestantes;
 
   // Dibujar el tablero cuando se carge la fuente buscaminas
   document.fonts.load('10px buscaminas').then(() => {
