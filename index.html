@@ -10,9 +10,17 @@
 </head>
 
 <body>
-  <div id="contador"></div>
-  <div id="end-msg"></div>
-  <canvas id="main-board"></canvas>
+  <div class="game" id="game" style="display: none;">
+    <div id="contador"></div>
+    <div id="end-msg"></div>
+    <canvas id="main-board"></canvas>
+  </div>
+  <div class="menu">
+    <input type="radio" name="level" id="easy" class="level" value="easy"><label for="easy">Principiante</label>
+    <input type="radio" name="level" id="normal" class="level" value="normal" checked><label for="normal">Intermedio</label>
+    <input type="radio" name="level" id="hard" class="level" value="hard"><label for="hard">Experto</label>
+    <button id="btn-play">Jugar</button>
+  </div>
 </body>
 
 </html>

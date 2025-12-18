@@ -1,7 +1,35 @@
 // Board Config
-export const BOARD_WIDTH = 20;
-export const BOARD_HEIGHT = 20;
-export const NUM_MINES = 50;
+// export const BOARD_PROPERTIES = {
+//   BOARD_WIDTH: 20,
+//   BOARD_HEIGHT: 20,
+//   NUM_MINES: 50
+// };
+
+const DIFFICULT_VALUES = {
+  easy: {
+    BOARD_WIDTH: 8,
+    BOARD_HEIGHT: 8,
+    NUM_MINES: 10
+  },
+  normal: {
+    BOARD_WIDTH: 16,
+    BOARD_HEIGHT: 16,
+    NUM_MINES: 40
+  },
+  hard: {
+    BOARD_WIDTH: 30,
+    BOARD_HEIGHT: 16,
+    NUM_MINES: 99
+  }
+};
+
+export function getBoardProperties(difficult) {
+  return { ...DIFFICULT_VALUES[difficult] };
+}
+
+// export const BOARD_WIDTH = 20;
+// export const BOARD_HEIGHT = 20;
+// export const NUM_MINES = 50;
 export const CELL_SIZE = 25;
 
 // Colors

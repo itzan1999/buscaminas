@@ -1,15 +1,22 @@
 import { Canvas } from './canvas.js';
-import { BOARD_HEIGHT, BOARD_WIDTH, CELL_SIZE, CELL_STADE, CELL_VALUE, NUM_MINES } from './consts.js';
+import { CELL_SIZE, CELL_STADE, CELL_VALUE, getBoardProperties } from './consts.js';
 
 const canvas = document.getElementById('main-board');
 const contador = document.getElementById('contador');
 const endMsg = document.getElementById('end-msg');
+const btnPlay = document.getElementById('btn-play');
+const rbtnLevels = document.getElementsByName('level');
+const divGame = document.getElementById('game');
 
 // Inicializar tableros
-const BOARD = Array.from({ length: BOARD_HEIGHT }, () => Array(BOARD_WIDTH).fill(CELL_VALUE.void));
-const SHOW_BOARD = Array.from({ length: BOARD_HEIGHT }, () => Array(BOARD_WIDTH).fill(CELL_STADE.closed));
+// const BOARD = Array.from({ length: BOARD_PROPERTIES.BOARD_HEIGHT }, () => Array(BOARD_PROPERTIES.BOARD_WIDTH).fill(CELL_VALUE.void));
+// const SHOW_BOARD = Array.from({ length: BOARD_PROPERTIES.BOARD_HEIGHT }, () => Array(BOARD_PROPERTIES.BOARD_WIDTH).fill(CELL_STADE.closed));
+// const MAIN_CANVAS = new Canvas(canvas, BOARD_PROPERTIES.BOARD_WIDTH, BOARD_PROPERTIES.BOARD_HEIGHT);
 
-const MAIN_CANVAS = new Canvas(canvas, BOARD_WIDTH, BOARD_HEIGHT);
+let BOARD = Array();
+let SHOW_BOARD = Array();
+let MAIN_CANVAS;
+let BOARD_PROPERTIES;
 
 // Coordenadas relativas a las 8 celdas que rodean a cualquiera
 const dirs = [
@@ -27,20 +34,31 @@ let pressedCell = null; // {x, y} o null
 let mouseDown = false;
 let start = false;
 let lose = false;
-let minasRestantes = NUM_MINES;
+let minasRestantes = 0;
 
 // Inicializar contador al numero de minas
 contador.textContent = minasRestantes;
 
-// Dibujar el tablero cuando se carge la fuente buscaminas
-document.fonts.load('10px buscaminas').then(() => {
-  MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
-});
+// Establece el tamaño del tablero
+function formarTablero() {
+  start = false;
+  BOARD = Array.from({ length: BOARD_PROPERTIES.BOARD_HEIGHT }, () => Array(BOARD_PROPERTIES.BOARD_WIDTH).fill(CELL_VALUE.void));
+  SHOW_BOARD = Array.from({ length: BOARD_PROPERTIES.BOARD_HEIGHT }, () => Array(BOARD_PROPERTIES.BOARD_WIDTH).fill(CELL_STADE.closed));
+
+  MAIN_CANVAS = new Canvas(canvas, BOARD_PROPERTIES.BOARD_WIDTH, BOARD_PROPERTIES.BOARD_HEIGHT);
+
+  minasRestantes = BOARD_PROPERTIES.NUM_MINES;
+
+  // Dibujar el tablero cuando se carge la fuente buscaminas
+  document.fonts.load('10px buscaminas').then(() => {
+    MAIN_CANVAS.draw(BOARD, SHOW_BOARD);
+  });
+}
 
 // Generar los valores del tablero
 function generarTablero(cellX, cellY) {
   start = true;
-  colocarMinas(BOARD, NUM_MINES, generarZonaSegura(cellX, cellY));
+  colocarMinas(BOARD, BOARD_PROPERTIES.NUM_MINES, generarZonaSegura(cellX, cellY));
   colocarNumeros(BOARD);
 }
 
@@ -436,6 +454,20 @@ window.addEventListener('pointerup', (e) => {
 // Evento que evita que se muestre el menu contextual del click derecho en el tablero
 canvas.addEventListener('contextmenu', (e) => {
   e.preventDefault();
+});
+
+btnPlay.addEventListener('click', (e) => {
+  let difficult = '';
+  for (const rbtnLevel of rbtnLevels) {
+    if (rbtnLevel.checked) {
+      difficult = rbtnLevel.value;
+      break;
+    }
+  }
+
+  BOARD_PROPERTIES = getBoardProperties(difficult);
+  formarTablero();
+  divGame.style.display = 'block';
 });
 
 // Muestra la celda especificada
